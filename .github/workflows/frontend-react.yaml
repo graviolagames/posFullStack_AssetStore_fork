@@ -13,11 +13,14 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
+    - run: cd frontend && npm install
     - run: cd frontend && npm ci
     - run: cd frontend && npm build
 
         
   deploy:
+    needs:
+      [build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
