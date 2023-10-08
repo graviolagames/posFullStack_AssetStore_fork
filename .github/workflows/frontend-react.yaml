@@ -39,4 +39,4 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         AWS_REGION: us-east-1 # optional: defaults to us-east-1
-        SOURCE_DIR: frontend/public # optional: defaults to public
+        SOURCE_DIR: frontend # optional: defaults to public
