@@ -2,6 +2,12 @@ on:
   push:
     paths:
       - backend/**
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
 name: Deploy branch to Chalice
 jobs:
   deploy:
