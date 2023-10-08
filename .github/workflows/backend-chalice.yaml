@@ -1,7 +1,7 @@
 on:
   push:
-    branches:
-      - main
+    paths:
+      - backend/**
 name: Deploy branch to Chalice
 jobs:
   deploy:
