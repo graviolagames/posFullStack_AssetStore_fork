@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - main
 name: Deploy branch to Chalice
 jobs:
   deploy:
