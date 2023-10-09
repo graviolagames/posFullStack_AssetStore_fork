@@ -24,10 +24,10 @@ jobs:
         node-version: '16'
 
     - name: frontend install
-      run: cd frontend && npm install
+      run: npm --prefix frontend install
 
     - name: frontend build
-      run: cd frontend &&  npm run build
+      run: npm --prefix frontend run build
 
     - name: upload frontend build
       uses: actions/upload-artifact@v3
