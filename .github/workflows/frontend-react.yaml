@@ -25,10 +25,10 @@ jobs:
         cache: 'npm'
 
     - name: frontend install
-      run: npm --prefix frontend install
+      run: cd frontend && npm install
 
     - name: frontend build
-      run: npm --prefix frontend run build
+      run: cd frontend &&  npm run build
 
     - name: upload frontend build
       uses: actions/upload-artifact@v3
