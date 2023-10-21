@@ -1,0 +1,36 @@
+# Arquivos e diretórios gerados pelo Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Diretório do ambiente virtual (nome pode variar)
+venv/
+env/
+.pycache/
+
+# Arquivos de configuração específicos do IDE/editor
+.idea/
+.vscode/
+*.swp
+
+# Arquivos gerados por ferramentas de desenvolvimento
+*.log
+
+# Diretório __pycache__ no projeto principal
+__pycache__/
+
+# Logs e saída de aplicativos
+*.log
+*.logs
+
+# Diretórios de saída de testes
+/coverage
+
+# Arquivos de registro
+*.log
