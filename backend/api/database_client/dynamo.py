@@ -1,5 +1,7 @@
 import boto3
 import time
+from definitions import return_values
+
 class Dynamo_instance:
     _instance = None
     def __new__(cls):
@@ -11,6 +13,7 @@ class Dynamo_instance:
     def init_client(self):
         self.client = boto3.client('dynamodb')
 
+# Returns True or False according with a table existence
 def check_table_existence(table_name):
     db_instance = Dynamo_instance()
     existing_tables = db_instance.client.list_tables()
@@ -18,19 +21,30 @@ def check_table_existence(table_name):
         return True 
     return False
 
+# Wait for a table to get the ACTIVE state
+# Return values: 
+#    TABLE_NOT_FOUND
+#    TIME_OUT
+#    SUCCESS
 def wait_table_active(table_name):
     timeout = 10
     sleep = 2
     start_time = time.time()
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
+    if table == None:
+        return return_values.TABLE_NOT_FOUND
     start_time = time.time()
     while table.table_status != "ACTIVE":
         time.sleep(sleep)
         if time.time() - start_time > timeout:
-            return False
-    return True
+            return return_values.TIME_OUT
+    return return_values.SUCCESS
 
+# Wait for table to be created and ACTIVE
+# Return values: 
+#    TIME_OUT
+#    SUCCESS
 def wait_table_creation(table_name):
     timeout = 10
     sleep = 2
@@ -38,5 +52,5 @@ def wait_table_creation(table_name):
     while not check_table_existence(table_name):
         time.sleep(sleep)
         if time.time() - start_time > timeout:
-            return False 
+            return return_values.TIME_OUT
     return wait_table_active(table_name)
