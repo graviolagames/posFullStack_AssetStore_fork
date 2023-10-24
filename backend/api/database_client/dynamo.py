@@ -21,6 +21,14 @@ def check_table_existence(table_name):
         return True 
     return False
 
+# Returns table status
+def get_table_status(table_name):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name)
+    if table != None:
+        return table.table_status
+    return return_values.TABLE_NOT_FOUND
+    
 # Wait for a table to get the ACTIVE state
 # Return values: 
 #    TABLE_NOT_FOUND
@@ -30,15 +38,14 @@ def wait_table_active(table_name):
     timeout = 10
     sleep = 2
     start_time = time.time()
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    if table == None:
-        return return_values.TABLE_NOT_FOUND
-    start_time = time.time()
-    while table.table_status != "ACTIVE":
+    status = get_table_status(table_name) 
+    if status ==  return_values.TABLE_NOT_FOUND:
+        return status
+    while status != "ACTIVE" :
         time.sleep(sleep)
         if time.time() - start_time > timeout:
             return return_values.TIME_OUT
+        status = get_table_status(table_name) 
     return return_values.SUCCESS
 
 # Wait for table to be created and ACTIVE
