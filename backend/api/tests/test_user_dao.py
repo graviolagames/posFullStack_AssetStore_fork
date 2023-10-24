@@ -1,12 +1,12 @@
 import pytest
-from controllers import user_controller 
+from DAO import user_dao as dao
 import boto3
 import time
 user_table_name = "TestUserTable"
 
 class TestUserController:
     _SLEEP = 10
-    _dao = user_controller.User_DAO(user_table_name)
+    _dao = dao.User_DAO(user_table_name)
 
     def _delete_table(self):
         print('_delete_table')
@@ -36,7 +36,7 @@ class TestUserController:
             }
         )
     
-    #User_controller must create a table that should be accessible by boto3
+    #User_DAO must create a table that should be accessible by boto3
     @pytest.fixture(scope='module', autouse=True)
     def setup_module_fixture(self):
         print('Entering setup_module_fixture')
@@ -44,7 +44,7 @@ class TestUserController:
         print('create_user_table: '+ ret_value)
         assert self._get_table_status() == "ACTIVE"
     
-
+    @pytest.fixture(scope='module', autouse=True)
     def teardown_module(self):
         print('Entering teardown_module')
         self._delete_table()
@@ -53,7 +53,7 @@ class TestUserController:
         print('Entering test_dummy')
 
     """
-    #User_controller must create item on user table
+    #User_DAO must create item on user table
     def test_create_user():
         user_param = {'name': 'Dino da Silva Sauro',
                       'senha': '123456'}
