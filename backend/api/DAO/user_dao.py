@@ -90,3 +90,22 @@ class User_DAO:
                 return return_values.USER_NOT_FOUND
         except Exception as e:
             return str(e)    
+
+    # delete an user 
+    # return values:
+    # TABLE_NOT_FOUND
+    # INVALID_INPUT_DATA
+    # SUCCESS
+    def delete_user(self,user_id):
+        if not dynamo.check_table_existence(self.table_name):
+            return return_values.TABLE_NOT_FOUND
+        if not user_id:
+            return return_values.INVALID_INPUT_DATA
+        try:
+            response = self.db_instance.client.delete_item(
+                    TableName = self.table_name,
+                    Key = {'id': {'S': user_id}}
+            )
+            return return_values.SUCCESS
+        except Exception as e:
+            return str(e)    

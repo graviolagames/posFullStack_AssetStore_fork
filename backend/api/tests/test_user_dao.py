@@ -1,6 +1,7 @@
 import pytest
 from DAO import user_dao as dao
 from util import data_util
+from definitions import return_values
 import boto3
 import time
 
@@ -71,7 +72,7 @@ class TestUserDAO:
         assert response_item["name"] == user_param["name"]
         assert response_item["password"] == user_param["password"]
     
-    #User_DAO must read an item on user table
+    #User_DAO must read an existing user
     def test_read_user(self):
         print('Entering test_read_user')
         table = self._get_table()
@@ -98,6 +99,32 @@ class TestUserDAO:
             }
         else:
             print("Test skipped (User Table not found)")    
+
+    #User_DAO must delete an existing user
+    def test_delete_user(self):
+        print('Entering test_delete_user')
+        table = self._get_table()
+        if table:
+            user_param = {
+                            'name': 'Sr. Richfield',
+                            'password': 'TheBo$$'
+                        }
+            user_id = data_util.create_hash(user_param['name'])
+            user_item = {
+                'id': user_id,
+                'name': user_param['name'],
+                'password': user_param['password']
+            }
+            table.put_item(Item=user_item)
+            time.sleep(self._SLEEP)
+
+            result = self._dao.delete_user(user_id)
+
+            assert result == return_values.SUCCESS
+            response = table.get_item(Key={'id':user_id})
+            assert 'Item' not in response
+        else:
+            printf("Test skipped (User table not found)")
 
     def teardown_class(self):
         print('Entering teardown_class')
