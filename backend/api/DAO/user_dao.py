@@ -37,7 +37,10 @@ class User_DAO:
                 'WriteCapacityUnits': 5
             } 
         }
-        self.db_instance.client.create_table(**table_params)
+        try:
+            self.db_instance.client.create_table(**table_params)
+        except Exception as e:
+            return str(e)
         return dynamo.wait_table_creation(self.table_name)
         
     
@@ -57,10 +60,13 @@ class User_DAO:
             'name':{'S':user_param['name']},
             'password':{'S':user_param['password']}
         }
-        self.db_instance.client.put_item(
-            TableName = self.table_name,
-            Item = item
-        )
+        try:
+            self.db_instance.client.put_item(
+                TableName = self.table_name,
+                Item = item
+            )
+        except Exception as e:
+            return str(e)
         return id
         
     # Read an user 
