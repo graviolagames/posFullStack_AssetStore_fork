@@ -1,12 +1,16 @@
 from chalice import Chalice
+from chalice import IAMAuthorizer
 
 app = Chalice(app_name='api')
-
+authorizer = IAMAuthorizer()
 
 @app.route('/')
 def index():
     return {'Bem vindo a aplicação': 'GameAssetsStore'}
 
+@app.route('/iam-auth', methods=['GET'], authorizer=authorizer)
+def authenticated():
+    return {"success": True}
 
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.

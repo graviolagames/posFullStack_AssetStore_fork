@@ -63,5 +63,24 @@ class User_DAO:
         )
         return id
         
-     
-    
+    # Read an user 
+    # return values:
+    # The user data
+    # TABLE_NOT_FOUND
+    # INVALID_INPUT_DATA
+    def read_user(self,user_id):
+        if not dynamo.check_table_existence(self.table_name):
+            return return_values.TABLE_NOT_FOUND
+        if not user_id:
+            return return_values.INVALID_INPUT_DATA
+        try:
+            response = self.db_instance.client.get_item(
+                    TableName = self.table_name,
+                    Key = {'id': {'S': user_id}}
+            )
+            if 'Item' in response:
+                return response['Item']
+            else:
+                return return_values.USER_NOT_FOUND
+        except Exception as e:
+            return str(e)    
