@@ -91,6 +91,36 @@ class User_DAO:
         except Exception as e:
             return str(e)    
 
+    # Update  user 
+    # return values:
+    # TABLE_NOT_FOUND
+    # INVALID_INPUT_DATA
+    # USER_NOT_FOUND
+    # SUCCESS
+    def update_user(self,user_id,user_param):
+        if not dynamo.check_table_existence(self.table_name):
+            return return_values.TABLE_NOT_FOUND
+        if not self.validate_user(user_param) or not user_id:
+            return return_values.INVALID_INPUT_DATA
+    
+        try:
+            update_expression = "SET #n = :new_name, #p = :new_password"
+            expression_attribute_names = {"#n": "name", "#p": "password"}
+            expression_attribute_values = {
+                ":new_name": {"S": user_param['name']},
+                ":new_password": {"S": user_param['password']}
+            }
+            response = self.db_instance.client.update_item(
+                TableName=self.table_name,
+                Key={"id": {"S": user_id}},
+                UpdateExpression=update_expression,
+                ExpressionAttributeNames=expression_attribute_names,
+                ExpressionAttributeValues=expression_attribute_values,
+                ReturnValues=return_values.SUCCESS
+            )
+        except Exception as e:
+            return return_values.ERROR + str(e)
+
     # delete an user 
     # return values:
     # TABLE_NOT_FOUND

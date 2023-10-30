@@ -56,7 +56,7 @@ class TestUserDAO:
         ret_value = self._dao.create_user_table()
         print('create_user_table: '+ ret_value)
         table_status = self._get_table_status() 
-        assert table_status == "ACTIVE"
+        assert table_status == "ACTIVE",f'Error: User table is suposed to be active'
     
         
     #User_DAO must create item on user table
@@ -69,8 +69,8 @@ class TestUserDAO:
         time.sleep(self._SLEEP)
         response = self._get_table_item(id)
         response_item = response['Item']
-        assert response_item["name"] == user_param["name"]
-        assert response_item["password"] == user_param["password"]
+        assert response_item["name"] == user_param["name"],f'Error testing created user. name diverges'
+        assert response_item["password"] == user_param["password"],f'Error testing created user. password diverges'
     
     #User_DAO must read an existing user
     def test_read_user(self):
@@ -96,9 +96,38 @@ class TestUserDAO:
                 'id': {'S': user_id},
                 'name': {'S': user_param['name']},
                 'password': {'S': user_param['password']}
-            }
+            },f'Error reading user. Incorrect response'
         else:
             print("Test skipped (User Table not found)")    
+
+    #User_DAO must update an existing user
+    def test_update_user(self):
+        print('Entering test_update_user')
+        table = self._get_table()
+        if table:
+            user_param = {
+                'name':'Mônica Invertebrada',
+                'password': 'blue'
+            }
+            user_id = data_util.create_hash(user_param['name'])
+            user_item = {
+                'id': user_id,
+                'name': user_param['name'],
+                'password': user_param['password']
+            }
+            table.put_item(Item=user_item)
+            time.sleep(self._SLEEP)
+            
+            updated_name = 'Roy Hess'
+            updated_password = 'Brown'
+            result = self._dao.update_user(user_id,user_param)
+            assert result == return_values.SUCCESS,f'Error testing user update. Incorrect response'
+            response = table.get_item(Key={'id': user_id})
+            updated_item = response.get('Item', {})
+            assert updated_item.get('name', {}).get('S') == updated_name, f'User name not properly updated '
+            assert updated_item.get('password', {}).get('S') == updated_password, f'User password not properly updated'
+        else:
+            print("Test skipped (User Table not found)")
 
     #User_DAO must delete an existing user
     def test_delete_user(self):
@@ -120,9 +149,9 @@ class TestUserDAO:
 
             result = self._dao.delete_user(user_id)
 
-            assert result == return_values.SUCCESS
+            assert result == return_values.SUCCESS,f'Error testing delete user. Incorrect response'
             response = table.get_item(Key={'id':user_id})
-            assert 'Item' not in response
+            assert 'Item' not in response,f'Error testing delete user. Bad response'
         else:
             printf("Test skipped (User table not found)")
 
