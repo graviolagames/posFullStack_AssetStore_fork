@@ -2,7 +2,7 @@ from database_client import dynamo
 from definitions import return_values
 from util import data_util
 
-# User_DAO Manager User Crup operations.
+# User_DAO Manager User Crud operations.
 class User_DAO:
     def __init__(self,user_table_name):
         self.table_name = user_table_name
@@ -50,6 +50,9 @@ class User_DAO:
     # TIME_OUT
     # SUCCESS
     def create_user(self,user_param):
+        print(user_param)
+        print(self.table_name)
+        print(dynamo.check_table_existence(self.table_name))
         if not dynamo.check_table_existence(self.table_name):
             return return_values.TABLE_NOT_FOUND
         if not self.validate_user(user_param):

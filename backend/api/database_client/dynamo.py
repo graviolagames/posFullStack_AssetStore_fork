@@ -18,6 +18,8 @@ def check_table_existence(table_name):
     try:
         db_instance = Dynamo_instance()
         existing_tables = db_instance.client.list_tables()
+        print(existing_tables['TableNames'])
+        print(table_name)
         if table_name in existing_tables['TableNames']:
             return True 
         return False
