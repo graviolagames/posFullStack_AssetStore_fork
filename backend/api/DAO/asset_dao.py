@@ -94,8 +94,10 @@ class Asset_DAO:
         except Exception as e:
             return str(e)    
 
-
-    def check_update_status(self, asset_id, expected_values):
+    #Wait for an iten to exist with given values
+    #Useful for checking update operation
+    #returns True or False
+    def wait_item_status(self, asset_id, expected_values):
         max_retries = 10  
         retries = 0
         while retries < max_retries:
@@ -107,7 +109,6 @@ class Asset_DAO:
                     'url': updated_item['Item']['url']['S']
                     }
                 if mapped_values == expected_values:
-                    print("Update confirmed")
                     return True 
             time.sleep(5)
             retries += 1
@@ -140,7 +141,7 @@ class Asset_DAO:
                 ExpressionAttributeNames=expression_attribute_names,
                 ExpressionAttributeValues=expression_attribute_values,
             )
-            if self.check_update_status(asset_id,asset_param):
+            if self.wait_item_status(asset_id,asset_param):
                 return return_values.SUCCESS
             else:
                 return return_values.ERROR + ": Update not successfull"
