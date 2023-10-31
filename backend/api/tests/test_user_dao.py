@@ -117,17 +117,18 @@ class TestUserDAO:
             }
             table.put_item(Item=user_item)
             time.sleep(self._SLEEP)
-            
-            updated_name = 'Roy Hess'
-            updated_password = 'Brown'
-            result = self._dao.update_user(user_id,user_param)
+            updated_item_param = {
+                'name':'Roy Hess',
+                'password':'Brown'
+            }
+            result = self._dao.update_user(user_id,updated_item_param)
             assert result == return_values.SUCCESS,f'Error testing user update. Incorrect response'
             response = table.get_item(Key={'id': user_id})
             updated_item = response.get('Item', {})
-            assert updated_item.get('name', {}).get('S') == updated_name, f'User name not properly updated '
-            assert updated_item.get('password', {}).get('S') == updated_password, f'User password not properly updated'
+            assert updated_item['name'] == updated_item_param['name'], f'user name not properly updated '
+            assert updated_item['password'] == updated_item_param['password'], f'user password not properly updated'
         else:
-            print("Test skipped (User Table not found)")
+            print("Test skipped (user Table not found)")
 
     #User_DAO must delete an existing user
     def test_delete_user(self):
