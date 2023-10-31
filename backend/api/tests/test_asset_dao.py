@@ -112,7 +112,7 @@ class TestAssetDAO:
         if table:
             asset_param = {
                 'name':'2D nature textures',
-                'description': 'Set of realistic textures for nature (wildlife) anbient',
+                'description': 'Set of realistic textures for nature (wildlife) ambient',
                 'url':'http://www.archive.com/68758850/nature_textures.zip'
             }
             asset_id = data_util.create_hash(asset_param['name'])
@@ -124,18 +124,18 @@ class TestAssetDAO:
             }
             table.put_item(Item=asset_item)
             time.sleep(self._SLEEP)
-            
-            updated_name = '2D city textures'
-            updated_description = 'Set of realistic textures for urban locations'
-            updated_url = 'http://www.archive.com/68758850/urban_textures.zip'
-
-            result = self._dao.update_asset(asset_id,asset_param)
+            updated_item_param = {
+                'name':'2D city textures',
+                'description':'Set of realistic textures for urban locations',
+                'url':'http://www.archive.com/68758850/urban_textures.zip'
+            }
+            result = self._dao.update_asset(asset_id,updated_item_param)
             assert result == return_values.SUCCESS,f'Error testing asset update. Incorrect response'
             response = table.get_item(Key={'id': asset_id})
             updated_item = response.get('Item', {})
-            assert updated_item.get('name', {}).get('S') == updated_name, f'asset name not properly updated '
-            assert updated_item.get('description', {}).get('S') == updated_password, f'asset description not properly updated'
-            assert updated_item.get('url', {}).get('S') == updated_password, f'asset url not properly updated'
+            assert updated_item['name'] == updated_item_param['name'], f'asset name not properly updated '
+            assert updated_item['description'] == updated_item_param['description'], f'asset description not properly updated'
+            assert updated_item['url'] == updated_item_param['url'], f'asset url not properly updated'
             
         else:
             print("Test skipped (asset Table not found)")

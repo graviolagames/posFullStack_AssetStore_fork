@@ -1,6 +1,7 @@
 from database_client import dynamo
 from definitions import return_values
 from util import data_util
+import time
 
 # Asset_DAO Manager Asset Crud operations.
 class Asset_DAO:
@@ -93,6 +94,25 @@ class Asset_DAO:
         except Exception as e:
             return str(e)    
 
+
+    def check_update_status(self, asset_id, expected_values):
+        max_retries = 10  
+        retries = 0
+        while retries < max_retries:
+            updated_item = self.db_instance.client.get_item(TableName=self.table_name, Key={"id": {"S": asset_id}})
+            if 'Item' in updated_item:
+                mapped_values = {
+                    'name': updated_item['Item']['name']['S'],
+                    'description': updated_item['Item']['description']['S'],
+                    'url': updated_item['Item']['url']['S']
+                    }
+                if mapped_values == expected_values:
+                    print("Update confirmed")
+                    return True 
+            time.sleep(5)
+            retries += 1
+        return False
+
     # Update  asset 
     # return values:
     # TABLE_NOT_FOUND
@@ -113,16 +133,19 @@ class Asset_DAO:
                 ":new_description": {"S": asset_param['description']},
                 ":new_url": {"S": asset_param['url']},
             }
-            response = self.db_instance.client.update_item(
+            self.db_instance.client.update_item(
                 TableName=self.table_name,
                 Key={"id": {"S": asset_id}},
                 UpdateExpression=update_expression,
                 ExpressionAttributeNames=expression_attribute_names,
                 ExpressionAttributeValues=expression_attribute_values,
-                ReturnValues=return_values.SUCCESS
             )
+            if self.check_update_status(asset_id,asset_param):
+                return return_values.SUCCESS
+            else:
+                return return_values.ERROR + ": Update not successfull"
         except Exception as e:
-            return return_values.ERROR + str(e)
+            return return_values.ERROR +" : "+ str(e)
 
     # delete an asset 
     # return values:
