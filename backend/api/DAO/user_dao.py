@@ -1,6 +1,9 @@
 from database_client import dynamo
 from definitions import return_values
 from util import data_util
+import hashlib
+import os
+import hmac
 
 # User_DAO Manager User Crud operations.
 class User_DAO:
@@ -15,6 +18,17 @@ class User_DAO:
             return False
         return True
 
+    def encode_password(self,password, salt=None):
+        if salt is None:
+            salt = os.urandom(16)
+        rounds = 100000
+        hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, rounds)
+        return {
+            'hash': 'sha256',
+            'salt': salt,
+            'rounds': rounds,
+            'hashed': hashed,
+        }
 
     # create the table for users
     # return values:
@@ -50,19 +64,25 @@ class User_DAO:
     # TIME_OUT
     # SUCCESS
     def create_user(self,user_param):
-        print(user_param)
-        print(self.table_name)
-        print(dynamo.check_table_existence(self.table_name))
+
         if not dynamo.check_table_existence(self.table_name):
             return return_values.TABLE_NOT_FOUND
         if not self.validate_user(user_param):
             return return_values.INVALID_INPUT_DATA
         id = data_util.create_hash(user_param['name'])
+
+        password_fields = self.encode_password(user_param['password'])
+
         item = {
             'id':{'S':id},
             'name':{'S':user_param['name']},
-            'password':{'S':user_param['password']}
+            'password':{'S':user_param['password']},
+            'hash':{'B':password_fields['hash']},
+            'salt':{'B':password_fields['salt']},
+            'rounds':{'N':str(password_fields['rounds'])},
+            'hashed':{'B':password_fields['hashed']},
         }
+
         try:
             self.db_instance.client.put_item(
                 TableName = self.table_name,
@@ -142,3 +162,28 @@ class User_DAO:
             return return_values.SUCCESS
         except Exception as e:
             return str(e)    
+    
+    def user_login(self, username, password):
+        id = data_util.create_hash(username)
+        try:
+            response = self.db_instance.client.get_item(
+                    TableName = self.table_name,
+                    Key = {'id': {'S': id}}
+            )
+            if 'Item' in response:
+                user = response['Item']
+                password_fields = {
+                    'hash': user['hash']['B'],
+                    'salt': user['salt']['B'],
+                    'rounds': user['rounds']['N'],
+                    'hashed': user['hashed']['B'],
+                }
+                hashed = self.encode_password(password, password_fields['salt'])
+                if hashed['hashed'] == password_fields['hashed']:
+                    return return_values.SUCCESS
+                else:
+                    return return_values.INVALID_INPUT_DATA
+            else:
+                return return_values.USER_NOT_FOUND
+        except Exception as e:
+            return str(e)

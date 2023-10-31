@@ -8,6 +8,7 @@ authorizer = IAMAuthorizer()
 def index():
     return {'Bem vindo a aplicação': 'GameAssetsStore'}
 #Apenas um teste
+
 @app.route('/user/create', methods=['POST'])
 def user_create_table():
     dao = user_dao.User_DAO('Teste_user')
@@ -15,15 +16,20 @@ def user_create_table():
     print(response)
     return {'Bem vindo a aplicação': 'GameAssetsStore'}
 
-@app.route('/user/register', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def user_register():
-    dao = user_dao.User_DAO('Test_user')
+    dao = user_dao.User_DAO('Teste_user')
     body = app.current_request.json_body
-    print(body)
-    response = dao.create_user(body)
-    print(response)
+#    response = dao.create_user(body)
     return {'Bem vindo a aplicação': 'GameAssetsStore'}
 
+@app.route('/login', methods=['POST'])
+def login():
+    dao = user_dao.User_DAO('Teste_user')
+    body = app.current_request.json_body
+    response = dao.user_login(body['name'], body['password'])
+    print(response)
+    return {'Bem vindo a aplicação': 'GameAssetsStore'}
 
 @app.route('/iam-auth', methods=['GET'], authorizer=authorizer)
 def authenticated():
