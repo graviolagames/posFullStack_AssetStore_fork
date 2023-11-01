@@ -71,6 +71,8 @@ class User_DAO:
             return return_values.INVALID_INPUT_DATA
         id = data_util.create_hash(user_param['name'])
 
+        if not self.read_user(id) == return_values.USER_NOT_FOUND:
+            return return_values.USER_ALREADY_EXISTS
         password_fields = self.encode_password(user_param['password'])
 
         item = {
@@ -88,6 +90,7 @@ class User_DAO:
                 TableName = self.table_name,
                 Item = item
             )
+            return return_values.SUCCESS
         except Exception as e:
             return str(e)
         return id

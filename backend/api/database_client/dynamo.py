@@ -17,9 +17,7 @@ class Dynamo_instance:
 def check_table_existence(table_name):
     try:
         db_instance = Dynamo_instance()
-        print(table_name)
         existing_tables = db_instance.client.list_tables()
-        print(existing_tables)
         for table in existing_tables['TableNames']:
             if table == table_name:
                 return True

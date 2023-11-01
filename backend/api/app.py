@@ -20,8 +20,9 @@ def user_create_table():
 def user_register():
     dao = user_dao.User_DAO('Teste_user')
     body = app.current_request.json_body
-#    response = dao.create_user(body)
-    return {'Bem vindo a aplicação': 'GameAssetsStore'}
+    response = dao.create_user(body)
+    print(response)
+    return {'Response': response}
 
 @app.route('/login', methods=['POST'])
 def login():
